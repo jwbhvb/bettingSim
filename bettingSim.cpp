@@ -31,11 +31,10 @@ int main()
   cin>>startingCash;
   cout<<"Enter number of players: ";
   cin>>playerCount;
-  runSim(startingCash,0,playerCount); //black
-  runSim(startingCash,1,playerCount); //red
-  runSim(startingCash,2,playerCount); //even
-  runSim(startingCash,3,playerCount); //odd
-  runSim(startingCash,4,playerCount); //random
+  for(int i=0;i<7;i++) //run every simulation type
+  {
+    runSim(startingCash,i,playerCount); //black,red,even,odd,random,zero,double-zero
+  }
 
   system("PAUSE");
   return 0;
@@ -144,9 +143,11 @@ void runSim(int cash, int betType, int numPlayers)
       break;
     case 5:
       type="Zero";
+      choice=4;
       break;
     case 6:
       type="DoubleZero";
+      choice=5;
       break;
   }
   cout<<"Starting "<<type<<" simulation for "<<numPlayers<<" players with $"<<cash<<endl;
@@ -158,10 +159,10 @@ void runSim(int cash, int betType, int numPlayers)
     int money = cash;
     int betLevel = 0;
     int highestAmount = cash;
-
+    vector<int> spins;
     while(money>0) //while has money
     {
-      if(betType==4)
+      if(betType==4) //random
         choice=rand()%4;
       if(MAX_BET >= money || STARTING_BET * (int)pow(2,betLevel) <= money) //enough money to double the bet
       {
@@ -169,10 +170,39 @@ void runSim(int cash, int betType, int numPlayers)
       }else{ //not enough to make the full doubled bet
         betAmount = money;
       }
-      money-=betAmount; //make bet
+      if(choice==4) //0s
+      {
+        if(spins.size()>=30 && count(spins.begin(),spins.end(),0)>0) //wait for atleast 30 spins without 0
+        {
+          betAmount=STARTING_BET; //for now, but plan on coming up with an incremental formula later
+        }else{ //dont bet
+          betAmount=0;
+        }
+      }
+      if(choice==5) //0s
+      {
+        if(spins.size()>=30 && count(spins.begin(),spins.end(),-1)>0) //wait for atleast 30 spins without 0
+        {
+          betAmount=STARTING_BET; //for now, but plan on coming up with an incremental formula later
+        }else{ //dont bet
+          betAmount=0;
+        }
+      }
+      if(money>=STARTING_BET) //this is also the min bet
+      {
+        money-=betAmount; //make bet
+      }else{
+        money=0; //ends the sim because cant afford
+      }
       int randNum = getRandomNum(-1,36); //random number from -1 to 36 where -1 = 00
-
       bool won = checkBet(choice, randNum);
+      if((choice==4&&randNum==0)||(choice==5&&randNum==-1)) //hit 0 or 00 when the player was counting
+      {
+        while(spins.size()>0)
+          spins.pop_back();
+      }else{ //add to the list
+        spins.push_back(randNum);
+      }
       if(won)
       {
         if(choice<4){ //won a 2 to 1 payout (black, red, even, or odd)
