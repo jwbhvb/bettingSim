@@ -172,16 +172,16 @@ void runSim(int cash, int betType, int numPlayers)
       }
       if(choice==4) //0s
       {
-        if(spins.size()>=30 && count(spins.begin(),spins.end(),0)>0) //wait for atleast 30 spins without 0
+        if(spins.size()>=30 && count(spins.begin(),spins.end(),0)==0) //wait for atleast 30 spins without 0
         {
           betAmount=STARTING_BET; //for now, but plan on coming up with an incremental formula later
         }else{ //dont bet
           betAmount=0;
         }
       }
-      if(choice==5) //0s
+      if(choice==5) //00s
       {
-        if(spins.size()>=30 && count(spins.begin(),spins.end(),-1)>0) //wait for atleast 30 spins without 0
+        if(spins.size()>=30 && count(spins.begin(),spins.end(),-1)==0) //wait for atleast 30 spins without 0
         {
           betAmount=STARTING_BET; //for now, but plan on coming up with an incremental formula later
         }else{ //dont bet
